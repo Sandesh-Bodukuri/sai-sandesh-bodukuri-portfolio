@@ -1,0 +1,26 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next / build output
+.next
+out
+build
+*.tsbuildinfo
+next-env.d.ts
+
+# env (keep the documented example)
+.env
+.env.*
+!.env.example
+
+# test + audit output (kept private to the repo workflow)
+playwright-report
+test-results
+.lighthouseci
+.lighthouseci-reports
+
+# misc
+.DS_Store
+.vercel
+coverage

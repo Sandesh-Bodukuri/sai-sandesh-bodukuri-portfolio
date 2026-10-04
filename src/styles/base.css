@@ -1,0 +1,112 @@
+/*
+ * base.css: document defaults, focus ring, skip link, and the accessibility/motion base rules
+ * (CLAUDE_CONTEXT.md §5.1, §9). Tailwind's preflight provides the reset.
+ */
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--bg-0);
+    color: var(--fg-1);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg-0);
+    color: var(--fg-1);
+    font-family: var(--font-text);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  /* Display type is for the name and h1/h2 only (§4). */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+
+  h1 {
+    font-size: var(--text-hero);
+    line-height: var(--text-hero--line-height);
+  }
+
+  h2 {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+
+  h3 {
+    font-weight: 600;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+  }
+
+  /* Visible focus on every interactive element (§9.2). */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+}
+
+/* Skip link: first focusable element, revealed on focus. */
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: var(--z-overlay);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: var(--space-4);
+  background-color: var(--bg-2);
+  color: var(--fg-1);
+  border-radius: var(--radius-control);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(var(--space-3));
+}
+
+/* Smooth in-page anchors only when motion is welcome (§1.1). */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Reduced motion: no animation or transition survives (§5.1). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Increased contrast: hairlines and muted text step up to bone (§9.8, D-030). */
+@media (prefers-contrast: more) {
+  :root {
+    --line-1: var(--fg-1);
+    --line-2: var(--fg-1);
+    --fg-2: var(--fg-1);
+    --fg-3: var(--fg-1);
+  }
+}
+
+/* Forced colours: rely on system colours; keep focus and the skip link visible (§9.8). */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
+
+  .skip-link {
+    border: 1px solid ButtonText;
+  }
+}

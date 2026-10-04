@@ -1,0 +1,11 @@
+.next
+node_modules
+pnpm-lock.yaml
+.lighthouseci
+.lighthouseci-reports
+playwright-report
+test-results
+# Spec documents are tables-heavy markdown maintained by hand.
+CLAUDE.md
+docs
+src/fonts

@@ -1,0 +1,148 @@
+/*
+ * tokens.css: the single source of design tokens (CLAUDE_CONTEXT.md §3, §4).
+ * Declare every design-system-level value here, once. Isolated implementation values stay local (§3 token policy).
+ *
+ * Tailwind v4 integration:
+ *  - @theme static resets Tailwind's default colour, type, radius and shadow scales, so only the tokens below exist as utilities.
+ *  - Namespaces Tailwind owns (--text-*, --radius-*, --font-*, --breakpoint-*) are declared in @theme static.
+ *  - Colours are raw :root tokens (--bg-*, --fg-*, ...) aliased into --color-* by @theme inline at the end of the file.
+ *    Utility names therefore read bg-bg-0, text-fg-1, border-line-1, bg-accent, text-accent-text.
+ *  - Spacing: use Tailwind steps that match the §3 scale (1, 2, 3, 4, 6, 8, 12, 16, 24, 32) or var(--space-*).
+ */
+@theme static {
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  /* Breakpoints (min-width, mobile-first) */
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  /* Shape */
+  --radius-surface: 0;
+  --radius-control: 2px;
+
+  /* Font families: the --font-*-face variables are set by next/font in src/lib/fonts.ts (fallbacks live there) */
+  --font-display: var(--font-display-face);
+  --font-text: var(--font-text-face);
+  --font-mono: var(--font-mono-face);
+  --default-font-family: var(--font-text);
+  --default-mono-font-family: var(--font-mono);
+
+  /* Type scale (§4); line-heights follow Tailwind's --text-*--line-height convention */
+  --text-hero: clamp(3.5rem, 1.5rem + 9vw, 9rem);
+  --text-hero--line-height: 0.92;
+  --text-display: clamp(2.25rem, 1.6rem + 3.2vw, 4.5rem);
+  --text-display--line-height: 0.95;
+  --text-title: clamp(1.375rem, 1.2rem + 0.9vw, 2rem);
+  --text-title--line-height: 1.15;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-lead--line-height: 1.5;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-mono: 0.8125rem;
+  --text-mono--line-height: 1.5;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces (carbon) */
+  --bg-0: #0a0b0d; /* page */
+  --bg-1: #101216; /* alternate section */
+  --bg-2: #161a1f; /* cards, terminal */
+  --line-1: #262b33; /* hairline (decorative) */
+  --line-2: #3a414b; /* strong line (decorative, ~1.7–1.9:1; never the sole boundary of a control) */
+
+  /* Text colour (contrast measured on --bg-2; enforced by tests/tokens.contrast.test.ts) */
+  --fg-1: #ece8df; /* bone, primary  ~14:1 */
+  --fg-2: #a9a59b; /* secondary      ~7:1  */
+  --fg-3: #8c887f; /* muted          ~4.9:1; only at ≥14px, never for 13px mono */
+
+  /* Accent */
+  --accent: #e34234; /* vermilion: fills, lines, large text (~4.8:1 on --bg-0) */
+  --accent-text: #f0604d; /* small text on any surface (~5.4:1+) */
+  --on-accent: #0a0b0d; /* label on accent fill (~4.8:1) */
+  --data: #6fa8b8; /* charts / telemetry traces only (~6.6:1+) */
+  --focus: #ece8df; /* focus ring */
+
+  /* Spacing (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* Layout */
+  --container-max: 75rem;
+  --prose-max: 66ch;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --section-y: clamp(4.5rem, 11vw, 9rem);
+  --nav-h: 3.5rem;
+
+  /* Shape */
+  --sweep-w: 2px;
+  --stroke-hair: 1px; /* hairlines, track lines, diagram edges */
+  --stroke-trace: 1.5px; /* telemetry traces, diagram lines */
+  --cut-angle: 12deg; /* the single diagonal: blade separators, racing-line kinks, ink strokes */
+  --cut-size: 0.75rem; /* chamfer on flagship surfaces */
+  --pattern-alpha: 0.06; /* opacity ceiling for lattice / grain */
+
+  /* Type scale, fonts, radius and breakpoints are declared in the @theme static block above (Tailwind namespaces), per §3 and §4 */
+
+  /* Motion */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-draw: 600ms; /* ink / blade stroke draw-on, once */
+  --dur-sequence: 900ms; /* hero sequence, total */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* accelerate in, settle fast */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-linear: linear; /* progress indicators only */
+
+  /* Cursor */
+  --cursor-dot: 6px;
+  --cursor-ring: 34px;
+  --cursor-ring-active: 52px;
+  --cursor-stroke: 1.5px;
+  --cursor-tau: 70ms; /* smoothing time constant */
+  --cursor-idle: 120ms; /* stop rAF after this idle time */
+
+  /* Stacking */
+  --z-base: 0;
+  --z-sticky: 40;
+  --z-progress: 50;
+  --z-overlay: 80;
+  --z-cursor: 100;
+}
+
+/* Colour aliases for Tailwind utilities (values stay in the :root tokens above) */
+@theme inline {
+  --color-bg-0: var(--bg-0);
+  --color-bg-1: var(--bg-1);
+  --color-bg-2: var(--bg-2);
+  --color-line-1: var(--line-1);
+  --color-line-2: var(--line-2);
+  --color-fg-1: var(--fg-1);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-on-accent: var(--on-accent);
+  --color-data: var(--data);
+  --color-focus: var(--focus);
+}
