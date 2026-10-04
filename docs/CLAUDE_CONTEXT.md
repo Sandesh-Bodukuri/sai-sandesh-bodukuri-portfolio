@@ -1,6 +1,6 @@
 # CLAUDE_CONTEXT.md — Sai Sandesh Bodukuri · Portfolio
 
-Source of truth for every build session. v1.5 · 2026-10-03 (Step 1 implemented; decisions D-032 to D-038 and the empty-shell baseline recorded).
+Source of truth for every build session. v1.7 · 2026-10-04 (Step 1 closed: owner-run Playwright/axe and Lighthouse results recorded; D-039).
 Precedence: this file > chat history > assumptions. If a chat contradicts this file, flag it; do not guess. Changes to this file go through §17.
 Status legend: **Verified** = confirmed by the owner · **Pending** = owner still to supply · **Optional** = useful, not required for launch (§0).
 
@@ -714,6 +714,7 @@ You are the lead engineer for Sai Sandesh Bodukuri's portfolio. CLAUDE_CONTEXT.m
 | D-036 | CI is GitHub Actions (`check` + build + bundle gate; `e2e`; `lighthouse`). Lighthouse assertions are warn-only; reports are saved as workflow artifacts (`upload.target: filesystem`), never uploaded publicly. Actions pinned to major tags (checkout v7, setup-node v7, upload-artifact v7, pnpm/action-setup v6, verified with `git ls-remote`) | Supply-chain policy requires SHA pinning |
 | D-037 | Tailwind namespace handling: radius, type scale, fonts, and breakpoints are declared in `@theme static`; colours remain `:root` tokens aliased through `@theme inline` as `--color-*`; Tailwind default colour, type, radius, and shadow scales are reset so only token values exist; line-heights use the `--text-*--line-height` convention. Utility names: `bg-bg-0`, `text-fg-1`, `border-line-1`, `bg-accent`, `text-accent-text` | Tailwind changes theme namespace behaviour |
 | D-038 | pnpm 12 treats unreviewed dependency build scripts as an install error. `unrs-resolver` is explicitly denied in `pnpm-workspace.yaml` (`allowBuilds`); its native binary arrives through optional dependencies and ESLint runs correctly without the script | A dependency needs its build script |
+| D-039 | The ≈2.5 s LCP on the skeletal Step 1 page (target ≤2.0 s) is a non-blocking warning. Do not rewrite the foundation to chase it; reassess against the real hero at Step 3, where the LCP ≤2.0 s gate stays in force (owner decision, 2026-10-04) | Step 3 hero measurement |
 
 ### 17.2 Launch blockers
 **A. Content blockers (must be Verified before launch; checked at Step 9)**
@@ -765,8 +766,10 @@ Measured in the sandbox on a production build (Node 24.21.0, Next 16.3.8, Turbop
 | HTML (gzip), `/` | 3.2 KB | n/a |
 | Font files (inventory) | 5 files, 111.9 KB | ≤115 KB (calibrated, D-032) |
 | Fonts preloaded on `/` | 82.3 KB (display + Plex Sans 400 + 600) | n/a |
-| Lighthouse mobile (3-run median) | **Pending.** Not run: no browser in the sandbox. Run `pnpm lhci` locally or via CI and record the scores here | Performance ≥90 where realistic |
-| Playwright + axe | **Pending.** Not run: no browser in the sandbox. 6 tests are discovered | Zero violations |
-| D-001 review (Next vs Astro) | Open until the Lighthouse run; reopen only if empty-shell mobile Lighthouse <90 | n/a |
+| Lighthouse mobile (run locally by the owner on the Step 1 production build, localhost:3000) | **Performance 100 · Accessibility 100 · Best Practices 100 · SEO 100.** LCP ≈2.5 s (2499.4 / 2498.1 / 2500.5 ms) vs ≤2.0 s is the one assertion warning; CLS 0; TBT ≈40 ms | Performance ≥90 where realistic; LCP ≤2.0 s |
+| Playwright + axe (run locally by the owner) | 6/6 passed at 360 and 1280 px: correct h1, no console errors, no horizontal overflow, skip link first in tab order, **0 axe violations** | Zero violations |
+| D-001 review (Next vs Astro) | **Not triggered**: empty-shell mobile Lighthouse Performance is 100. The Step 1 Lighthouse exit criterion is met. LCP phase breakdown (render delay dominant per the owner) is examined at Step 3 | n/a |
 
 The framework floor of about 137 KB leaves roughly 33 KB of headroom under the 170 KB target for Steps 2 to 7 on the home route.
+
+Owner-reported follow-ups (2026-10-04): GitHub Actions has not yet been confirmed by a real run, and `next dev` was not formally verified. Both are operational follow-ups, not Step 2 blockers. The Step 1 rollback checkpoint is commit `f083ba1` on `main`. Step 1 is closed.
