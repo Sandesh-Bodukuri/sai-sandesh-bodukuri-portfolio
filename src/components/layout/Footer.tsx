@@ -1,7 +1,9 @@
 import { site } from '@/content/site';
 import { Container } from './Container';
+import { MotionToggle } from './MotionToggle';
 
-// Static footer shell (Step 1). The seal, contact rows and email arrive in later steps.
+// Footer shell. Carries the motion toggle below md (the header shows it from md up). The seal, contact
+// rows and email arrive in later steps.
 export function Footer() {
   return (
     <footer className="border-t border-line-1 py-8">
@@ -14,6 +16,7 @@ export function Footer() {
         >
           {site.github.label}
         </a>
+        <MotionToggle className="inline-flex md:hidden" />
       </Container>
     </footer>
   );
