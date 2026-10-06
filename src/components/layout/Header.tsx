@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { site } from '@/content/site';
 import { Container } from './Container';
+import { MotionToggle } from './MotionToggle';
 
 // Static header shell (Step 1): brand + anchor links, wrapping on small screens.
-// The mobile menu, motion toggle and lap line arrive in later steps.
+// The mobile menu and the section-name label arrive in Step 3. The motion toggle shows here from md up;
+// below md it lives in the footer.
 const links = [
   { href: '#projects', label: 'Projects' },
   { href: '#experiments', label: 'Experiments' },
@@ -32,6 +34,7 @@ export function Header() {
             ))}
           </ul>
         </nav>
+        <MotionToggle className="hidden md:inline-flex" />
       </Container>
     </header>
   );

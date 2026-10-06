@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Footer } from '@/components/layout/Footer';
+import { Cursor } from '@/components/interactive/Cursor';
 import { Header } from '@/components/layout/Header';
+import { ScrollProgress } from '@/components/layout/ScrollProgress';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { site } from '@/content/site';
 import { env } from '@/lib/env';
@@ -26,9 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={fontClasses}>
       <body>
         <SkipLink />
+        <ScrollProgress />
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <Cursor />
       </body>
     </html>
   );

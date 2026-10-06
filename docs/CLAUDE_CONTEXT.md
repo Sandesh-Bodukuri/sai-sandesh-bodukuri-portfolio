@@ -1,6 +1,6 @@
 # CLAUDE_CONTEXT.md — Sai Sandesh Bodukuri · Portfolio
 
-Source of truth for every build session. v1.5 · 2026-10-03 (Step 1 implemented; decisions D-032 to D-038 and the empty-shell baseline recorded).
+Source of truth for every build session. v1.8 · 2026-10-05 (Step 2 implemented: decisions D-040 to D-045 and the Step 2 measurements recorded).
 Precedence: this file > chat history > assumptions. If a chat contradicts this file, flag it; do not guess. Changes to this file go through §17.
 Status legend: **Verified** = confirmed by the owner · **Pending** = owner still to supply · **Optional** = useful, not required for launch (§0).
 
@@ -714,6 +714,13 @@ You are the lead engineer for Sai Sandesh Bodukuri's portfolio. CLAUDE_CONTEXT.m
 | D-036 | CI is GitHub Actions (`check` + build + bundle gate; `e2e`; `lighthouse`). Lighthouse assertions are warn-only; reports are saved as workflow artifacts (`upload.target: filesystem`), never uploaded publicly. Actions pinned to major tags (checkout v7, setup-node v7, upload-artifact v7, pnpm/action-setup v6, verified with `git ls-remote`) | Supply-chain policy requires SHA pinning |
 | D-037 | Tailwind namespace handling: radius, type scale, fonts, and breakpoints are declared in `@theme static`; colours remain `:root` tokens aliased through `@theme inline` as `--color-*`; Tailwind default colour, type, radius, and shadow scales are reset so only token values exist; line-heights use the `--text-*--line-height` convention. Utility names: `bg-bg-0`, `text-fg-1`, `border-line-1`, `bg-accent`, `text-accent-text` | Tailwind changes theme namespace behaviour |
 | D-038 | pnpm 12 treats unreviewed dependency build scripts as an install error. `unrs-resolver` is explicitly denied in `pnpm-workspace.yaml` (`allowBuilds`); its native binary arrives through optional dependencies and ESLint runs correctly without the script | A dependency needs its build script |
+| D-039 | The ≈2.5 s LCP on the skeletal Step 1 page (target ≤2.0 s) is a non-blocking warning. Do not rewrite the foundation to chase it; reassess against the real hero at Step 3, where the LCP ≤2.0 s gate stays in force (owner decision, 2026-10-04) | Step 3 hero measurement |
+| D-040 | Cursor: logic is pure (`lib/cursor.ts`), wiring is `interactive/Cursor.tsx`. Enabled only when JS is ready, the pointer is fine and can hover, reduced motion is off, the motion toggle is on, and forced colours are off; otherwise nothing renders and the native cursor is untouched. Fails closed if the cursor tokens cannot be read. Target precedence: none > interactive > text (a link inside a text region still reads as interactive). The native cursor is hidden through `html[data-cursor-native="hidden"]` only while the custom cursor is visible. Ring size, smoothing, and idle values come from the existing cursor tokens; the interactive scale is computed from them and written as `--cursor-scale`. Colours: dot `--fg-1`, ring `--fg-2`, interactive ring `--accent` (instant); only the scale transitions, on nested elements so translate and scale never share one transform | Cursor tokens or states change |
+| D-041 | Lap line: the fill is a `scaleX` transform, never a width change. CSS scroll-driven animation (`animation-timeline: scroll(root block)`) where supported and motion is allowed; otherwise one passive scroll listener batched through rAF. Reduced-motion users always get the listener, because the global reduced-motion rule zeroes animation durations. Ticks mark `main > section[id]` boundaries and drop a tick at the very start. Decorative (`aria-hidden`), rendered after hydration. The section-name label is deferred to Step 3 (owner-approved) | Step 3 header lands |
+| D-042 | MotionToggle: header from md up, footer below md (the mobile menu is Step 3). Both instances share one external store (`useSyncExternalStore`, no state library) that keeps working in memory if storage is blocked. Resolved state = explicit stored choice, else on unless the system asks for reduced motion; the cursor additionally requires no reduced motion regardless of the toggle. The resolved state is mirrored to `<html data-motion="on\|off">`. A fixed-size slot renders on the server and the button appears after hydration (no layout shift, no inert control without JS) | Step 3 hero consumes the toggle |
+| D-043 | Two small hooks beyond the four named in the plan: `useIsClient` (hydration flag) and `useMediaQuery` (the base for the pointer and reduced-motion hooks) | — |
+| D-044 | Cursor and lap-line styles live in `src/styles/interactive.css`; `base.css` is unchanged | — |
+| D-045 | Browser checks in the sandbox used an npm-bundled Chromium (`@sparticuz/chromium` 153.0.0, Chromium 153.0.8010.0) kept outside the repo and driven by Playwright 1.63.0, through an untracked sandbox-only config. Results are labelled sandbox-only; the owner's `pnpm e2e` and `pnpm lhci` remain the authoritative runs | A supported Playwright browser is available |
 
 ### 17.2 Launch blockers
 **A. Content blockers (must be Verified before launch; checked at Step 9)**
@@ -765,8 +772,59 @@ Measured in the sandbox on a production build (Node 24.21.0, Next 16.3.8, Turbop
 | HTML (gzip), `/` | 3.2 KB | n/a |
 | Font files (inventory) | 5 files, 111.9 KB | ≤115 KB (calibrated, D-032) |
 | Fonts preloaded on `/` | 82.3 KB (display + Plex Sans 400 + 600) | n/a |
-| Lighthouse mobile (3-run median) | **Pending.** Not run: no browser in the sandbox. Run `pnpm lhci` locally or via CI and record the scores here | Performance ≥90 where realistic |
-| Playwright + axe | **Pending.** Not run: no browser in the sandbox. 6 tests are discovered | Zero violations |
-| D-001 review (Next vs Astro) | Open until the Lighthouse run; reopen only if empty-shell mobile Lighthouse <90 | n/a |
+| Lighthouse mobile (run locally by the owner on the Step 1 production build, localhost:3000) | **Performance 100 · Accessibility 100 · Best Practices 100 · SEO 100.** LCP ≈2.5 s (2499.4 / 2498.1 / 2500.5 ms) vs ≤2.0 s is the one assertion warning; CLS 0; TBT ≈40 ms | Performance ≥90 where realistic; LCP ≤2.0 s |
+| Playwright + axe (run locally by the owner) | 6/6 passed at 360 and 1280 px: correct h1, no console errors, no horizontal overflow, skip link first in tab order, **0 axe violations** | Zero violations |
+| D-001 review (Next vs Astro) | **Not triggered**: empty-shell mobile Lighthouse Performance is 100. The Step 1 Lighthouse exit criterion is met. LCP phase breakdown (render delay dominant per the owner) is examined at Step 3 | n/a |
 
 The framework floor of about 137 KB leaves roughly 33 KB of headroom under the 170 KB target for Steps 2 to 7 on the home route.
+
+Owner-reported follow-ups (2026-10-04): GitHub Actions has not yet been confirmed by a real run, and `next dev` was not formally verified. Both are operational follow-ups, not Step 2 blockers. The Step 1 rollback checkpoint is commit `f083ba1` on `main`. Step 1 is closed.
+
+### 17.5 Step 2 measurements (2026-10-05)
+Sandbox, production build, Node 24.21.0. 1 KB = 1000 bytes. Browser results are sandbox-only (D-045).
+
+| Metric | Step 1 | Step 2 | Target / note |
+|---|---|---|---|
+| First-load JS (gzip), `/` | 137.2 KB | **140.0 KB** (+2.8 KB) | ≤170 KB target |
+| CSS (gzip), `/` | 4.3 KB | **4.8 KB** | ≤25 KB |
+| HTML (gzip), `/` | 3.2 KB | 3.3 KB | n/a |
+| Fonts preloaded on `/` | 82.3 KB | 82.3 KB | unchanged |
+| Unit tests (Vitest) | 16 | **63 passed** (47 new: cursor, lap line, motion preference) | all pass |
+| Playwright + axe (sandbox Chromium 153) | not run in sandbox (owner: 6/6) | **23 passed**: 6 Step 1 + 17 Step 2; the Step 2 spec also passed 3 repeated runs (51/51) | owner re-run on a supported browser still required |
+| Lighthouse (sandbox, simulated mobile, 3 runs, informational) | owner-run: 100/100/100/100, LCP ≈2.5 s | Performance 99, Accessibility 100, Best Practices 100, SEO 100; LCP median ≈1.85 s, FCP ≈0.78 s, TBT ≈86 ms, CLS 0 | not comparable with the owner's machine (different CPU benchmark); the owner-run Step 2 result is authoritative |
+
+Verified in the sandbox browser: the CSS scroll-driven fill matches true scroll progress to within 0.0003 at 0, 25, 50, 75, and 100%; the reduced-motion fallback tracks the same; 7 ticks for the 7 sections; zero layout shift through load, pointer movement, toggling, and scrolling.
+
+**Owner-run verification of the integrated Step 2 branch (authoritative, 2026-10-05).** Performed by the owner on branch `step/02-interaction-infrastructure` (HEAD `45f5e4f` when recorded). These results are authoritative and supersede the sandbox-only and informational figures above wherever they differ. The sandbox figures above are preserved unchanged and remain labelled sandbox/informational (D-045). The "owner re-run on a supported browser still required" and "the owner-run Step 2 result is authoritative" notes in the sandbox rows are satisfied by the results below.
+
+| Lighthouse, mobile (owner-run, authoritative) | Step 1 (owner-run) | Step 2 (owner-run) | Target / note |
+|---|---|---|---|
+| Performance | 100 | **98** | ≥90 where realistically achievable |
+| Accessibility | 100 | **100** | 100 |
+| Best Practices | 100 | **96** | ≥95 |
+| SEO | 100 | **100** | 100 |
+| FCP | not recorded | **0.8 s** | n/a |
+| LCP | ≈2.5 s | **2.5 s** | ≤2.0 s; unchanged from Step 1, so the non-blocking D-039 warning stands and is reassessed at Step 3 |
+| TBT | ≈40 ms | **30 ms** | ≤150 ms |
+| CLS | 0 | **0** | ≤0.02 |
+| Speed Index | not recorded | **0.8 s** | n/a |
+
+Performance (100 to 98) and Best Practices (100 to 96) are lower than at Step 1 but within the §10 targets. The audit(s) behind the Best Practices change were not supplied and are not recorded here.
+
+| Check (owner-run, authoritative) | Result |
+|---|---|
+| `pnpm check` | Passed |
+| Vitest | 63/63 passed |
+| `pnpm build` | Passed |
+| `pnpm baseline`, route `/` | 140.0 KB first-load JS (gzip) · CSS 4.8 KB (gzip) · fonts 111.9 KB |
+| `pnpm e2e` | 23/23 passed |
+| axe | 0 violations in the tested states |
+| Mobile 360 | Passed |
+| Desktop 1280 | Passed |
+| Reduced motion | Passed |
+| Touch cursor behaviour | Passed |
+| Forced-colors behaviour | Passed |
+| Keyboard motion toggle | Passed |
+| Layout shift | CLS 0 |
+
+The owner-run bundle figures (140.0 KB JS, 4.8 KB CSS, 111.9 KB fonts) match the sandbox measurements above.
