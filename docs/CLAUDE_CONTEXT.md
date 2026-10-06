@@ -794,3 +794,37 @@ Sandbox, production build, Node 24.21.0. 1 KB = 1000 bytes. Browser results are 
 | Lighthouse (sandbox, simulated mobile, 3 runs, informational) | owner-run: 100/100/100/100, LCP ≈2.5 s | Performance 99, Accessibility 100, Best Practices 100, SEO 100; LCP median ≈1.85 s, FCP ≈0.78 s, TBT ≈86 ms, CLS 0 | not comparable with the owner's machine (different CPU benchmark); the owner-run Step 2 result is authoritative |
 
 Verified in the sandbox browser: the CSS scroll-driven fill matches true scroll progress to within 0.0003 at 0, 25, 50, 75, and 100%; the reduced-motion fallback tracks the same; 7 ticks for the 7 sections; zero layout shift through load, pointer movement, toggling, and scrolling.
+
+**Owner-run verification of the integrated Step 2 branch (authoritative, 2026-10-05).** Performed by the owner on branch `step/02-interaction-infrastructure` (HEAD `45f5e4f` when recorded). These results are authoritative and supersede the sandbox-only and informational figures above wherever they differ. The sandbox figures above are preserved unchanged and remain labelled sandbox/informational (D-045). The "owner re-run on a supported browser still required" and "the owner-run Step 2 result is authoritative" notes in the sandbox rows are satisfied by the results below.
+
+| Lighthouse, mobile (owner-run, authoritative) | Step 1 (owner-run) | Step 2 (owner-run) | Target / note |
+|---|---|---|---|
+| Performance | 100 | **98** | ≥90 where realistically achievable |
+| Accessibility | 100 | **100** | 100 |
+| Best Practices | 100 | **96** | ≥95 |
+| SEO | 100 | **100** | 100 |
+| FCP | not recorded | **0.8 s** | n/a |
+| LCP | ≈2.5 s | **2.5 s** | ≤2.0 s; unchanged from Step 1, so the non-blocking D-039 warning stands and is reassessed at Step 3 |
+| TBT | ≈40 ms | **30 ms** | ≤150 ms |
+| CLS | 0 | **0** | ≤0.02 |
+| Speed Index | not recorded | **0.8 s** | n/a |
+
+Performance (100 to 98) and Best Practices (100 to 96) are lower than at Step 1 but within the §10 targets. The audit(s) behind the Best Practices change were not supplied and are not recorded here.
+
+| Check (owner-run, authoritative) | Result |
+|---|---|
+| `pnpm check` | Passed |
+| Vitest | 63/63 passed |
+| `pnpm build` | Passed |
+| `pnpm baseline`, route `/` | 140.0 KB first-load JS (gzip) · CSS 4.8 KB (gzip) · fonts 111.9 KB |
+| `pnpm e2e` | 23/23 passed |
+| axe | 0 violations in the tested states |
+| Mobile 360 | Passed |
+| Desktop 1280 | Passed |
+| Reduced motion | Passed |
+| Touch cursor behaviour | Passed |
+| Forced-colors behaviour | Passed |
+| Keyboard motion toggle | Passed |
+| Layout shift | CLS 0 |
+
+The owner-run bundle figures (140.0 KB JS, 4.8 KB CSS, 111.9 KB fonts) match the sandbox measurements above.
