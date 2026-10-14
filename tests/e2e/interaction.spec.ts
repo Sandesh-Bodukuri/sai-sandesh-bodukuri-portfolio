@@ -66,6 +66,44 @@ test.describe('cursor (fine pointer)', () => {
   });
 });
 
+test.describe('cursor over content it cannot classify', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  // A third-party-style widget: an open shadow root with its own cursor styling. This is the same
+  // mechanism as the Next.js dev-tools overlay: the page sees the shadow host as the event target, and
+  // the page's `cursor: none` rule cannot reach the widget's own `cursor: pointer`.
+  test('defers to the native cursor over shadow-DOM content and resumes outside it', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(motionToggle(page)).toBeVisible();
+    await page.evaluate(() => {
+      const host = document.createElement('div');
+      host.id = 'shadow-widget';
+      host.style.cssText =
+        'position:fixed;left:40px;bottom:40px;width:120px;height:48px;z-index:10;';
+      host.attachShadow({ mode: 'open' }).innerHTML =
+        '<button style="width:120px;height:48px;cursor:pointer">Widget</button>';
+      document.body.appendChild(host);
+    });
+
+    await page.mouse.move(600, 300);
+    await expect(page.locator(cursorLayer)).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-cursor-native', 'hidden');
+
+    const box = await page.locator('#shadow-widget').boundingBox();
+    if (!box) throw new Error('shadow widget has no box');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+    // The widget shows its own native pointer, so the custom cursor must not draw a second one.
+    await expect(page.locator(cursorLayer)).toBeHidden();
+    await expect(page.locator('html')).not.toHaveAttribute('data-cursor-native', 'hidden');
+
+    await page.mouse.move(600, 300, { steps: 5 });
+    await expect(page.locator(cursorLayer)).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-cursor-native', 'hidden');
+  });
+});
+
 test.describe('cursor is inert where it must be', () => {
   test.describe('touch device', () => {
     // Only the emulation fields: `defaultBrowserType` cannot be set inside a describe group.

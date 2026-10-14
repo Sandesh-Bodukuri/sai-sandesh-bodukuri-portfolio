@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   activeScale,
+  classifyPointerTarget,
   classifyTarget,
   cursorReducer,
   deriveView,
@@ -72,6 +73,27 @@ describe('classifyTarget', () => {
     for (const part of ['a', 'button', '[role="button"]', 'summary']) {
       expect(INTERACTIVE_SELECTOR.split(', ')).toContain(part);
     }
+  });
+});
+
+describe('classifyPointerTarget (shadow-DOM retargeting)', () => {
+  const host = { closest: (selector: string) => (selector === INTERACTIVE_SELECTOR ? {} : null) };
+  const plain = { closest: () => null };
+
+  it('defers to the native cursor when the real target differs from the retargeted one', () => {
+    // Over a shadow-DOM widget, event.target is the host and composedPath()[0] is the inner element.
+    expect(classifyPointerTarget(host, { inner: true })).toBe('none');
+    expect(classifyPointerTarget(plain, { inner: true })).toBe('none');
+  });
+
+  it('classifies normally when there was no retargeting', () => {
+    expect(classifyPointerTarget(host, host)).toBe('interactive');
+    expect(classifyPointerTarget(plain, plain)).toBe('default');
+    expect(classifyPointerTarget(null, null)).toBe('default');
+  });
+
+  it('classifies normally when the composed target is unavailable', () => {
+    expect(classifyPointerTarget(host, undefined)).toBe('interactive');
   });
 });
 

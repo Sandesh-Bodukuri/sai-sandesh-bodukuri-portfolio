@@ -7,7 +7,7 @@ import { usePointerFine } from '@/hooks/usePointerFine';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import {
   activeScale,
-  classifyTarget,
+  classifyPointerTarget,
   cursorReducer,
   deriveView,
   isCursorEnabled,
@@ -109,7 +109,10 @@ export function Cursor() {
       }
       if (wasArmed || event.target !== lastTarget) {
         lastTarget = event.target;
-        const kind = classifyTarget(event.target instanceof Element ? event.target : null);
+        const kind = classifyPointerTarget(
+          event.target instanceof Element ? event.target : null,
+          event.composedPath()[0],
+        );
         apply(cursorReducer(mode, { type: 'move', kind }));
       }
       if (frame === 0) frame = requestAnimationFrame(loop);

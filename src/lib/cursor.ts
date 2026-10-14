@@ -23,6 +23,21 @@ export function classifyTarget(target: ClosestLike | null): TargetKind {
   return 'default';
 }
 
+/**
+ * Pointer events are retargeted at shadow boundaries: over content inside a shadow tree, `event.target`
+ * is the shadow host while `composedPath()[0]` is the real element. That content styles its own cursor
+ * and cannot be classified from here, and the page's `cursor: none` rule does not reach into it, so the
+ * native cursor would show underneath a second, custom one. Defer to the native cursor instead.
+ * (Only open shadow roots can be detected: a closed root reports the host as `composedPath()[0]`.)
+ */
+export function classifyPointerTarget(
+  target: ClosestLike | null,
+  composedTarget: unknown,
+): TargetKind {
+  if (composedTarget !== undefined && composedTarget !== target) return 'none';
+  return classifyTarget(target);
+}
+
 export type CursorConditions = {
   jsReady: boolean;
   finePointer: boolean;
